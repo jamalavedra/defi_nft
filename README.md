@@ -1,107 +1,35 @@
-# 🏗 Scaffold-ETH
+# Glad betting
 
-> everything you need to build on Ethereum! 🚀
+# 🔭 How it works
 
-🧪 Quickly experiment with Solidity using a frontend that adapts to your smart contract:
+The proceeds of daily auctions are sent to the treasury. That's when the DeFi Dog magic starts:
 
-![image](https://user-images.githubusercontent.com/2653167/124158108-c14ca380-da56-11eb-967e-69cde37ca8eb.png)
+- The ETH from the winning bid is swapped on Uniswap for DAI. The resulting DAI is then deposited in Compound Finance, and begins to earn yield
+- A portion of the Compound tokens (cDAI) representing the deposits are then upgraded to "Super Tokens" in the Superfluid protocol.
+- Then Super Tokens begin streaming -- every second -- back to Dog owners:
+- 10% of of the proceeds of the auction stream back to the Dog Owner over the next 365 days. If the Dog is sold or transfered, the stream switches to the new owner.
+- 40% of the proceeds of each auction are shared by all current Dog owners and streamed to each of them over the next 365 days.
+- 20% of the proceeds for each auction go to the owner of the 10th Dog before this one. For example, 20% of the proceeds of the auction for Dog 10 will get streamed to the owner of Dog 0, over the next 365 days.
+- In future, the Club may decide to change the DeFi investments and distributions in interesting ways.
 
+Of course, Degen Dogs are ERC721 NFTs that can be used as Avatars and traded on OpenSea or other marketplaces. Degen Dogs Club is an experiment fusing NFTs with incentived tokenomics to foster community.
 
-# 🏄‍♂️ Quick Start
+# 🛠 How it's build
 
-### Manual setup
+Degen Dogs is composed of two smart contracts and a front-end dapp that manages periodic NFT minting and auctioning Dogs to the highest bidder.
 
-Prerequisites: [Node](https://nodejs.org/en/download/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
+The auction house contract is a modified version of the Zora Auction House contract. While the idea is for auctions to last 24 hours, minting one Dog each day, it is currently set to 10 minutes for development and demo purposes. Once the contract is deployed and initialized, it calls the ERC721 contract to mint a new Dog. At this point the Dog is not transferred to the Auction House but is held by the ERC721 contract pending the outcome of the auction. When the auction is over, a transaction to settle the auction triggers the transfer of the Dog to the winner and the transfer of the ETH proceeds to the ERC721 contract, which also acts as a treasury. That's when the DeFi starts...
 
-> clone/fork 🏗 scaffold-eth:
+The Dog contract leverages OpenZeppelin contracts to provide standard ERC721 functions, but also doubles as a treasury that not only holds funds, but invests them in DeFi and streams the result back NFT holders via Superfluid Finance. When an is won, the Dog contract transfers the Dog to the winner and receives the ETH proceeds. Immediately, the following is triggered:
 
-```bash
-git clone https://github.com/austintgriffith/scaffold-eth.git
-```
+- The Dog contract calls the Chainlink price feed oracle for ETH/DAI to get the latest price for DAI.
+- Using the Chainlink data to set a reasonable slippage margin, the ETH is then swapped for DAI using Uniswap v3.
+- The DAI is then immediately deposited in Compound Finance, where is starts to earn yield and COMP token rewards for the treasury. The contract now holds cDAI tokens representing the deposited DAI.
+- A subset of the cDAI is then "upgraded" to cDAIx via the Superfluid protocol.
+- Multiple streams of cDAIx being streaming -- every second -- back to the auction winner, and also to other Dog owners, according the following formula: 10% of auction proceeds stream back to the holder of that NFT over 365 days, PLUS 40% of the proceeds are divided among all Dog owners at the time, and streamed to them over 365 days, PLUS 20% of the proceeds are streamed to owner of the 10th dog prior, over 365 days (proceeds from Dog 10 stream to the owner of Dog 0, proceeds from Dog 11 stream to Dog 1, etc.)
+- After 365 days, anyone can act as a "closer", and send a transaction to close the streams that are eligible. An instant (not streamed) reward equivalent to 30 days of flow is earned.
+- When a Dog is sold or transferred, the streams are redirected automatically to the new owner.
 
-> install and start your 👷‍ Hardhat chain:
+The dapp primarily interfaces with the Auction House contract. User can connect their wallet, submit bids and settle auctions, which triggers the minting of a new Dog and starts a new auction. The dapp also displays the cDAI balances of the treasury and connected user, showing the real-time changes as funds are streamed out of the treasury to Dog owners.
 
-```bash
-cd scaffold-eth
-yarn install
-yarn chain
-```
-
-> in a second terminal window, start your 📱 frontend:
-
-```bash
-cd scaffold-eth
-yarn start
-```
-
-> in a third terminal window, 🛰 deploy your contract:
-
-```bash
-cd scaffold-eth
-yarn deploy
-```
-
-🌍 You need an RPC key for production deployments/Apps, create an [Alchemy](https://www.alchemy.com/) account and replace the value of `ALCHEMY_KEY = xxx` in `packages/react-app/src/constants.js`
-
-🔏 Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
-
-📝 Edit your frontend `App.jsx` in `packages/react-app/src`
-
-💼 Edit your deployment scripts in `packages/hardhat/deploy`
-
-📱 Open http://localhost:3000 to see the app
-
-### Automated with Gitpod
-
-To deploy this project to Gitpod, click this button:
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#github.com/scaffold-eth/scaffold-eth)
-
-# 📚 Documentation
-
-Documentation, tutorials, challenges, and many more resources, visit: [docs.scaffoldeth.io](https://docs.scaffoldeth.io)
-
-# 🔭 Learning Solidity
-
-📕 Read the docs: https://docs.soliditylang.org
-
-📚 Go through each topic from [solidity by example](https://solidity-by-example.org) editing `YourContract.sol` in **🏗 scaffold-eth**
-
-- [Primitive Data Types](https://solidity-by-example.org/primitives/)
-- [Mappings](https://solidity-by-example.org/mapping/)
-- [Structs](https://solidity-by-example.org/structs/)
-- [Modifiers](https://solidity-by-example.org/function-modifier/)
-- [Events](https://solidity-by-example.org/events/)
-- [Inheritance](https://solidity-by-example.org/inheritance/)
-- [Payable](https://solidity-by-example.org/payable/)
-- [Fallback](https://solidity-by-example.org/fallback/)
-
-📧 Learn the [Solidity globals and units](https://solidity.readthedocs.io/en/v0.6.6/units-and-global-variables.html)
-
-# 🛠 Buidl
-
-Check out all the [active branches](https://github.com/austintgriffith/scaffold-eth/branches/active), [open issues](https://github.com/austintgriffith/scaffold-eth/issues), and join/fund the 🏰 [BuidlGuidl](https://BuidlGuidl.com)!
-
-  
- - 🚤  [Follow the full Ethereum Speed Run](https://medium.com/@austin_48503/%EF%B8%8Fethereum-dev-speed-run-bd72bcba6a4c)
-
-
- - 🎟  [Create your first NFT](https://github.com/austintgriffith/scaffold-eth/tree/simple-nft-example)
- - 🥩  [Build a staking smart contract](https://github.com/austintgriffith/scaffold-eth/tree/challenge-1-decentralized-staking)
- - 🏵  [Deploy a token and vendor](https://github.com/austintgriffith/scaffold-eth/tree/challenge-2-token-vendor)
- - 🎫  [Extend the NFT example to make a "buyer mints" marketplace](https://github.com/austintgriffith/scaffold-eth/tree/buyer-mints-nft)
- - 🎲  [Learn about commit/reveal](https://github.com/austintgriffith/scaffold-eth/tree/commit-reveal-with-frontend)
- - ✍️  [Learn how ecrecover works](https://github.com/austintgriffith/scaffold-eth/tree/signature-recover)
- - 👩‍👩‍👧‍👧  [Build a multi-sig that uses off-chain signatures](https://github.com/austintgriffith/scaffold-eth/tree/meta-multi-sig)
- - ⏳  [Extend the multi-sig to stream ETH](https://github.com/austintgriffith/scaffold-eth/tree/streaming-meta-multi-sig)
- - ⚖️  [Learn how a simple DEX works](https://medium.com/@austin_48503/%EF%B8%8F-minimum-viable-exchange-d84f30bd0c90)
- - 🦍  [Ape into learning!](https://github.com/austintgriffith/scaffold-eth/tree/aave-ape)
-
-# 💬 Support Chat
-
-Join the telegram [support chat 💬](https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA) to ask questions and find others building with 🏗 scaffold-eth!
-
----
-
-🙏 Please check out our [Gitcoin grant](https://gitcoin.co/grants/2851/scaffold-eth) too!
-# defi_nft
+To display bid history for each auction, I used the Covalent API with their "primer" filters to fetch only the specific "new bid" events from the Auction House contract, along with date stamps for each. This made is very easy to display this information on the frontend.
