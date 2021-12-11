@@ -12,11 +12,11 @@ The proceeds of daily auctions are sent to the treasury. That's when the DeFi Do
 - 20% of the proceeds for each auction go to the owner of the 10th Dog before this one. For example, 20% of the proceeds of the auction for Dog 10 will get streamed to the owner of Dog 0, over the next 365 days.
 - In future, the Club may decide to change the DeFi investments and distributions in interesting ways.
 
-Of course, Degen Dogs are ERC721 NFTs that can be used as Avatars and traded on OpenSea or other marketplaces. Degen Dogs Club is an experiment fusing NFTs with incentived tokenomics to foster community.
+Of course, Glads are ERC721 NFTs that can be used as Avatars and traded on OpenSea or other marketplaces. Glads Club is an experiment fusing NFTs with incentived tokenomics to foster community.
 
 # 🛠 How it's build
 
-Degen Dogs is composed of two smart contracts and a front-end dapp that manages periodic NFT minting and auctioning Dogs to the highest bidder.
+Glads is composed of two smart contracts and a front-end dapp that manages periodic NFT minting and auctioning Glads to the highest bidder.
 
 The auction house contract is a modified version of the Zora Auction House contract. While the idea is for auctions to last 24 hours, minting one Dog each day, it is currently set to 10 minutes for development and demo purposes. Once the contract is deployed and initialized, it calls the ERC721 contract to mint a new Dog. At this point the Dog is not transferred to the Auction House but is held by the ERC721 contract pending the outcome of the auction. When the auction is over, a transaction to settle the auction triggers the transfer of the Dog to the winner and the transfer of the ETH proceeds to the ERC721 contract, which also acts as a treasury. That's when the DeFi starts...
 
